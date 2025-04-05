@@ -5,16 +5,16 @@
 #include <openssl/decoder.h>
 #include <openssl/core_names.h>
 
-#include "../../includes/rsa.h"
+#include "rsa.h"
 
-PKEY_PUBLIC 
+pkey_public 
 init_public_key(void *buffer)
 {
     if(IS_NULL(buffer))
     {
         ERROR_LOG("init_public_key -> buffer is null")
 
-        return;
+        return NULL;
     }
 
     EVP_PKEY *public_key = PEM_read_PUBKEY((FILE*)buffer ,NULL, NULL, NULL);
@@ -22,7 +22,7 @@ init_public_key(void *buffer)
     {
         ERROR_LOG("init_public_key -> public_key is null")
 
-        return;
+        return NULL;
     }
     
     return public_key;
@@ -51,10 +51,10 @@ init_public_key(void *buffer)
 // }
 
 
-PRSA_STRING 
-rsa_encrypt(const char* str, size_t len, EVP_PKEY_CTX *ctx)
+pstring_t 
+rsa_encrypt(const char *str, size_t len, EVP_PKEY_CTX *ctx)
 {
-    PRSA_STRING buffer = malloc(sizeof(RSA_STRING));
+    pstring_t buffer = malloc(sizeof(string_t));
     if(IS_NULL(buffer))
     {   
         ERROR_LOG("rsa_encrypt -> buffer is null")
@@ -90,11 +90,11 @@ rsa_encrypt(const char* str, size_t len, EVP_PKEY_CTX *ctx)
         switch (encypt_result)
         {
         case -2:
-            ERROR_LOG("EVP_PKEY_encrypt_init -> -2 indicates the operation is not supported by the public key algorithm.")
+            ERROR_LOG("EVP_PKEY_encrypt_init -> -2 indicates the operation is not supported by the public key algorithm.\n")
             break;
 
         default:
-            ERROR_LOG("EVP_PKEY_encrypt_init -> error")
+            ERROR_LOG("EVP_PKEY_encrypt_init -> error\n")
         }
 #endif 
     free(buffer);
@@ -104,11 +104,12 @@ rsa_encrypt(const char* str, size_t len, EVP_PKEY_CTX *ctx)
     return buffer;
 }
 
-
-PRSA_STRING
-decrypt(const char* str, size_t len, EVP_PKEY_CTX *ctx)
+pstring_t
+rsa_decrypt(const char* str, size_t len, EVP_PKEY_CTX *ctx)
 {
-    PRSA_STRING buffer = malloc(sizeof(RSA_STRING));
+    int decrypt_result = NULL;
+
+    pstring_t buffer = malloc(sizeof(string_t));
     if(IS_NULL(buffer))
     {
         ERROR_LOG("decrypt -> buffer is null")
@@ -117,8 +118,9 @@ decrypt(const char* str, size_t len, EVP_PKEY_CTX *ctx)
     }
 
 
-    int decrypt_result = EVP_PKEY_decrypt_init(ctx);
-    if(decrypt_result <= 0)
+    if(
+        (decrypt_result = EVP_PKEY_decrypt_init(ctx)), decrypt_result <= 0
+    )
     {
 #ifdef DEBUG
         switch (decrypt_result)
@@ -135,8 +137,10 @@ decrypt(const char* str, size_t len, EVP_PKEY_CTX *ctx)
     return NULL; 
     }
 
-    decrypt_result = EVP_PKEY_decrypt(ctx,str,len,buffer->buffer,buffer->len);
-    if(decrypt_result <= 0)
+    
+    if(
+        (decrypt_result = EVP_PKEY_decrypt(ctx,str,len,buffer->buffer,buffer->len)), decrypt_result = NULL
+    )
     {
 #ifdef DEBUG
         switch (decrypt_result)

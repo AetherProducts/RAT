@@ -17,8 +17,7 @@ typedef struct {
     } openssl_config;   
 } controller;
 
-controller *new_controller(const char* host, uint16_t port, PKEY_PUBLIC public_key);
-
+controller *new_controller(const char* host, uint16_t port, pkey_public public_key);
 void        controller_start(controller *controller);
 void        controller_free(void *controller);
 #endif

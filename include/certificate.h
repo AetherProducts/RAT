@@ -4,19 +4,14 @@
 #define CPUBLIC_SIZE 460
 #define CPRIVATE_SIZE 1732
 
-
 #include <stdint.h>
 #include <stdio.h>
 
 #include "errors.h"
 
-typedef FILE* PCERTIFICATE;
+typedef FILE* pcertificate;
 
 
-PCERTIFICATE init_certificate(void* ptr, size_t size);
-
-
-
-
+pcertificate init_certificate(void* ptr, size_t size);
 
 #endif
